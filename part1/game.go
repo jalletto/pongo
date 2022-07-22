@@ -20,7 +20,7 @@ func (g *Game) Run() {
 		s.Clear()
 
 		width, height := s.Size()
-
+		s.SetContent(2, 2, 'L', []rune{'\u0360'}, def)
 		g.Ball.CheckEdges(width, height)
 		g.Ball.Update()
 		s.SetContent(g.Ball.X, g.Ball.Y, g.Ball.Display(), nil, defStyle)
