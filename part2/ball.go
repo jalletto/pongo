@@ -14,9 +14,9 @@ func (b *Ball) Update() {
 }
 
 func (b *Ball) CheckEdges(maxWidth int, maxHeight int) {
-	if b.Body.X <= 0 || b.Body.X >= maxWidth {
-		b.Body.reverseX()
-	}
+	// if b.Body.X <= 0 || b.Body.X >= maxWidth {
+	// 	b.Body.reverseX()
+	// }
 
 	if b.Body.Y <= 0 || b.Body.Y >= maxHeight {
 		b.Body.reverseY()

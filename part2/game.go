@@ -1,9 +1,9 @@
 package main
 
 import (
-	"time"
-
 	"github.com/gdamore/tcell/v2"
+	"strconv"
+	"time"
 )
 
 type Game struct {
@@ -51,22 +51,35 @@ func (g *Game) Run() {
 		drawSprite(s, g.Ball.Body.X, g.Ball.Body.Y, g.Ball.Body.X, g.Ball.Body.Y, defStyle, g.Ball.Display())
 
 		// update the players
-		drawSprite(s, g.Player1.Paddle.Body.X,
+		drawSprite(s,
+			g.Player1.Paddle.Body.X,
 			g.Player1.Paddle.Body.Y,
 			g.Player1.Paddle.Body.X+g.Player1.Paddle.Body.width,
 			g.Player1.Paddle.Body.Y+g.Player1.Paddle.Body.height,
 			defStyle,
 			g.Player1.Paddle.Display())
 
-		drawSprite(s, g.Player2.Paddle.Body.X,
+		drawSprite(s,
+			g.Player2.Paddle.Body.X,
 			g.Player2.Paddle.Body.Y,
 			g.Player2.Paddle.Body.X+g.Player2.Paddle.Body.width,
 			g.Player2.Paddle.Body.Y+g.Player2.Paddle.Body.height,
 			defStyle,
 			g.Player2.Paddle.Display())
 
-		// update the score
-		// TODO
+		// update and display the score
+		if g.Ball.Body.X <= 0 {
+			g.Player2.Score++
+			g.ResetBall()
+		}
+
+		if g.Ball.Body.X >= width {
+			g.Player1.Score++
+			g.ResetBall()
+		}
+
+		drawSprite(s, (width/2)-5, 1, 1, 1, defStyle, strconv.Itoa(g.Player1.Score))
+		drawSprite(s, (width/2)+5, 1, 1, 1, defStyle, strconv.Itoa(g.Player2.Score))
 
 		//Determine if the game is over
 		// TODO
@@ -93,5 +106,12 @@ func (g *Game) Run() {
 		}
 
 	}
+
+}
+
+func (g *Game) ResetBall() {
+	width, height := g.Screen.Size()
+	g.Ball.Body.X = width / 2
+	g.Ball.Body.Y = height / 2
 
 }

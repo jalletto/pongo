@@ -9,7 +9,7 @@
 
 - Collision
     Refactor! Bodies
-    What happens when the ball reaches
+    What happens when the ball reaches the paddles.
 
 - Refactor! Players
     - Players could be paddles, but then why would paddles have a score etc. Let's create a player2 and a paddle
