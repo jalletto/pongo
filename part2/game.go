@@ -1,15 +1,16 @@
 package main
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"time"
+
+	"github.com/gdamore/tcell/v2"
 )
 
 type Game struct {
 	Screen       tcell.Screen
 	Ball         Ball
-	Player1      Paddle
-	Player2      Paddle
+	Player1      Player
+	Player2      Player
 	eventChannel chan string
 }
 
@@ -34,42 +35,63 @@ func (g *Game) Run() {
 	defStyle := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 
 	for {
-
+		// clear the screen so we can update it
 		s.Clear()
 
-		//ball
+		// calculate collision
+		if g.Ball.Body.intersects(g.Player1.Paddle.Body) || g.Ball.Body.intersects(g.Player2.Paddle.Body) {
+			g.Ball.Body.reverseX()
+			g.Ball.Body.reverseY()
+		}
+
+		// update the ball
 		width, height := s.Size()
 		g.Ball.CheckEdges(width, height)
 		g.Ball.Update()
+		drawSprite(s, g.Ball.Body.X, g.Ball.Body.Y, g.Ball.Body.X, g.Ball.Body.Y, defStyle, g.Ball.Display())
 
-		// s.SetContent(g.Ball.X, g.Ball.Y, g.Ball.Display(), nil, defStyle)
-		drawSprite(s, g.Ball.X, g.Ball.Y, g.Ball.X, g.Ball.Y, defStyle, g.Ball.Display())
+		// update the players
+		drawSprite(s, g.Player1.Paddle.Body.X,
+			g.Player1.Paddle.Body.Y,
+			g.Player1.Paddle.Body.X+g.Player1.Paddle.Body.width,
+			g.Player1.Paddle.Body.Y+g.Player1.Paddle.Body.height,
+			defStyle,
+			g.Player1.Paddle.Display())
 
-		// Paddle
-		drawSprite(s, g.Player1.X, g.Player1.Y, g.Player1.X+g.Player1.width, g.Player1.Y+g.Player1.height, defStyle, g.Player1.Display())
-		drawSprite(s, g.Player2.X, g.Player2.Y, g.Player2.X+g.Player2.width, g.Player2.Y+g.Player2.height, defStyle, g.Player2.Display())
+		drawSprite(s, g.Player2.Paddle.Body.X,
+			g.Player2.Paddle.Body.Y,
+			g.Player2.Paddle.Body.X+g.Player2.Paddle.Body.width,
+			g.Player2.Paddle.Body.Y+g.Player2.Paddle.Body.height,
+			defStyle,
+			g.Player2.Paddle.Display())
 
-		//channel
+		// update the score
+		// TODO
 
+		//Determine if the game is over
+		// TODO
+
+		// Update the screen
+		time.Sleep(50 * time.Millisecond)
+		s.Show()
+
+		//read from input channel
 		select {
 		case msg := <-g.eventChannel:
 			switch msg {
 			case "up":
-				g.Player2.MoveUp()
+				g.Player2.Paddle.MoveUp()
 			case "down":
-				g.Player2.MoveDown()
+				g.Player2.Paddle.MoveDown()
 			case "w":
-				g.Player1.MoveUp()
+				g.Player1.Paddle.MoveUp()
 			case "s":
-				g.Player1.MoveDown()
+				g.Player1.Paddle.MoveDown()
 			}
-
 		default:
-			width = 0
+			continue
 		}
 
-		time.Sleep(40 * time.Millisecond)
-		s.Show()
 	}
 
 }

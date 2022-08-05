@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -10,6 +9,7 @@ import (
 
 func main() {
 
+	// initialize our tcell screen
 	s, err := tcell.NewScreen()
 	if err != nil {
 		log.Fatalf("%+v", err)
@@ -19,34 +19,48 @@ func main() {
 		log.Fatalf("%+v", err)
 	}
 
-	// Set default text style
+	// set default text style (text, background color etc.)
 	defStyle := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 	s.SetStyle(defStyle)
 
+	// Set up our game
 	eventChannel := make(chan string)
 	width, _ := s.Size()
 
 	ball := Ball{
-		X:      5,
-		Y:      10,
-		Xspeed: 1,
-		Yspeed: 1,
+		Body{
+			X:      5,
+			Y:      10,
+			Xspeed: 1,
+			Yspeed: 1,
+		},
 	}
 
-	player1 := Paddle{
-		width:  1,
-		height: 5,
-		Y:      10,
-		X:      3,
-		Yspeed: 3,
+	player1 := Player{
+		Score: 0,
+		Paddle: Paddle{
+			Body{
+
+				width:  1,
+				height: 20,
+				Y:      3,
+				X:      5,
+				Yspeed: 3,
+			},
+		},
 	}
 
-	player2 := Paddle{
-		width:  1,
-		height: 5,
-		Y:      10,
-		X:      width - 3,
-		Yspeed: 3,
+	player2 := Player{
+		Score: 0,
+		Paddle: Paddle{
+			Body{
+				width:  1,
+				height: 20,
+				Y:      3,
+				X:      width - 5,
+				Yspeed: 3,
+			},
+		},
 	}
 
 	game := Game{

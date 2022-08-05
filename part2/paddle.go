@@ -1,22 +1,19 @@
 package main
 
+import "strings"
+
 type Paddle struct {
-	width  int
-	height int
-	Y      int
-	X      int
-	Xspeed int
-	Yspeed int
+	Body Body
 }
 
 func (p *Paddle) MoveUp() {
-	p.Y -= p.Yspeed
+	p.Body.Y -= p.Body.Yspeed
 }
 
 func (p *Paddle) MoveDown() {
-	p.Y += p.Yspeed
+	p.Body.Y += p.Body.Yspeed
 }
 
 func (p *Paddle) Display() string {
-	return "\u2588\u2588\u2588\u2588"
+	return strings.Repeat("\u2588", p.Body.height)
 }
