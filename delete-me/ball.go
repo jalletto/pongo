@@ -7,8 +7,8 @@ type Ball struct {
 	Yspeed int
 }
 
-func (b *Ball) Display() rune {
-	return '\u25CF'
+func (b *Ball) Display() string {
+	return "\u25CF"
 }
 
 func (b *Ball) Update() {

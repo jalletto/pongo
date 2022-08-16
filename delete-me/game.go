@@ -70,7 +70,13 @@ func (g *Game) Run() {
 		// Update the ball
 		g.Ball.CheckEdges(width, height)
 		g.Ball.Update()
-		s.SetContent(g.Ball.X, g.Ball.Y, g.Ball.Display(), nil, defStyle)
+		drawSprite(s,
+			g.Ball.X,
+			g.Ball.Y,
+			g.Ball.X,
+			g.Ball.Y,
+			defStyle,
+			g.Ball.Display())
 
 		// update the paddles
 		drawSprite(s,

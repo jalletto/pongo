@@ -23,14 +23,14 @@ func main() {
 	defStyle := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 	s.SetStyle(defStyle)
 
-	// Set up our game
+	// Set up and run our game
 	eventChannel := make(chan string)
-	width, _ := s.Size()
+	width, height := s.Size()
 
 	ball := Ball{
 		Body{
-			X:      5,
-			Y:      10,
+			X:      width / 2,
+			Y:      height / 2,
 			Xspeed: 1,
 			Yspeed: 1,
 		},
@@ -42,7 +42,7 @@ func main() {
 			Body{
 
 				width:  1,
-				height: 20,
+				height: 6,
 				Y:      3,
 				X:      5,
 				Yspeed: 3,
@@ -55,7 +55,7 @@ func main() {
 		Paddle: Paddle{
 			Body{
 				width:  1,
-				height: 20,
+				height: 6,
 				Y:      3,
 				X:      width - 5,
 				Yspeed: 3,
@@ -73,6 +73,7 @@ func main() {
 
 	go game.Run()
 
+	// Event Loop to listen for user input
 	for {
 
 		switch event := game.Screen.PollEvent().(type) {
