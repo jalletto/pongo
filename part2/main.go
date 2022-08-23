@@ -1,15 +1,13 @@
 package main
 
 import (
+	"github.com/gdamore/tcell/v2"
 	"log"
 	"os"
-
-	"github.com/gdamore/tcell/v2"
 )
 
 func main() {
 
-	// initialize our tcell screen
 	s, err := tcell.NewScreen()
 	if err != nil {
 		log.Fatalf("%+v", err)
@@ -19,83 +17,69 @@ func main() {
 		log.Fatalf("%+v", err)
 	}
 
-	// set default text style (text, background color etc.)
+	// Set default text style
 	defStyle := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 	s.SetStyle(defStyle)
 
-	// Set up and run our game
-	eventChannel := make(chan string)
 	width, height := s.Size()
 
 	ball := Ball{
-		Body{
-			X:      width / 2,
-			Y:      height / 2,
-			Xspeed: 1,
-			Yspeed: 1,
-		},
+		X:      width / 2,
+		Y:      10,
+		Xspeed: 1,
+		Yspeed: 1,
 	}
 
 	player1 := Player{
 		Score: 0,
 		Paddle: Paddle{
-			Body{
-
-				width:  1,
-				height: 6,
-				Y:      3,
-				X:      5,
-				Yspeed: 3,
-			},
+			width:  1,
+			height: 6,
+			Y:      height / 2,
+			X:      5,
+			Yspeed: 3,
 		},
 	}
 
 	player2 := Player{
 		Score: 0,
 		Paddle: Paddle{
-			Body{
-				width:  1,
-				height: 6,
-				Y:      3,
-				X:      width - 5,
-				Yspeed: 3,
-			},
+			width:  1,
+			height: 6,
+			Y:      height / 2,
+			X:      width - 5,
+			Yspeed: 3,
 		},
 	}
 
 	game := Game{
-		Screen:       s,
-		Ball:         ball,
-		Player1:      player1,
-		Player2:      player2,
-		eventChannel: eventChannel,
+		Screen:  s,
+		Ball:    ball,
+		Player1: player1,
+		Player2: player2,
 	}
 
 	go game.Run()
 
-	// Event Loop to listen for user input
 	for {
 
 		switch event := game.Screen.PollEvent().(type) {
 		case *tcell.EventResize:
 			game.Screen.Sync()
 		case *tcell.EventKey:
-
 			if event.Key() == tcell.KeyEscape || event.Key() == tcell.KeyCtrlC {
 				game.Screen.Fini()
 				os.Exit(0)
 			} else if event.Key() == tcell.KeyUp {
-				eventChannel <- "up"
+				game.Player2.Paddle.MoveUp()
 			} else if event.Key() == tcell.KeyDown {
-				eventChannel <- "down"
+				game.Player2.Paddle.MoveDown(height)
 			} else if event.Rune() == 'w' {
-				eventChannel <- "w"
+				game.Player1.Paddle.MoveUp()
 			} else if event.Rune() == 's' {
-				eventChannel <- "s"
+				game.Player1.Paddle.MoveDown(height)
 			}
-
 		}
-
 	}
 
 }

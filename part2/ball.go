@@ -1,29 +1,48 @@
 package main
 
 type Ball struct {
-	Body Body
+	X      int
+	Y      int
+	Xspeed int
+	Yspeed int
 }
 
 func (b *Ball) Display() string {
 	return "\u25CF"
 }
 
-func (b *Ball) Reset(x int, y int, xSpeed int, ySpeed int) {
-	b.Body.X = x
-	b.Body.Y = y
-	b.Body.Xspeed = xSpeed
-	b.Body.Yspeed = ySpeed
-
+func (b *Ball) Update() {
+	b.X += b.Xspeed
+	b.Y += b.Yspeed
 }
 
-func (b *Ball) Update() {
-	b.Body.X += b.Body.Xspeed
-	b.Body.Y += b.Body.Yspeed
+func (b *Ball) intersects(p Paddle) bool {
+	return b.X >= p.X && b.X <= p.X+p.width && b.Y >= p.Y && b.Y <= p.Y+p.height
+}
+
+func (b *Ball) reverseX() {
+	b.Xspeed *= -1
+}
+
+func (b *Ball) reverseY() {
+	b.Yspeed *= -1
+}
+
+func (b *Ball) Reset(x int, y int, xSpeed int, ySpeed int) {
+	b.X = x
+	b.Y = y
+	b.Xspeed = xSpeed
+	b.Yspeed = ySpeed
+
 }
 
 func (b *Ball) CheckEdges(maxWidth int, maxHeight int) {
 
-	if b.Body.Y <= 0 || b.Body.Y >= maxHeight {
-		b.Body.reverseY()
+	if b.X <= 0 || b.X >= maxWidth {
+		b.reverseY()
+	}
+
+	if b.Y <= 0 || b.Y >= maxHeight {
+		b.reverseY()
 	}
 }

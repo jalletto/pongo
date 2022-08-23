@@ -1,22 +1,20 @@
 package main
 
 import (
+	"github.com/gdamore/tcell/v2"
 	"strconv"
 	"time"
-
-	"github.com/gdamore/tcell/v2"
 )
 
 type Game struct {
-	Screen       tcell.Screen
-	Ball         Ball
-	Player1      Player
-	Player2      Player
-	eventChannel chan string
+	Screen  tcell.Screen
+	Ball    Ball
+	Player1 Player
+	Player2 Player
 }
 
 func (g *Game) GameOver() bool {
-	return g.Player1.Score == 5 || g.Player2.Score == 5
+	return g.Player1.Score == 2 || g.Player2.Score == 2
 }
 
 func (g *Game) DeclareWinner() string {
@@ -25,98 +23,85 @@ func (g *Game) DeclareWinner() string {
 	}
 
 	if g.Player1.Score > g.Player2.Score {
-		return "Left Player"
+		return "Player One"
 	} else {
-		return "Right Player"
+		return "Player Two"
 	}
 }
 
 func (g *Game) Run() {
-	// set up screen
 	s := g.Screen
 	defStyle := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
-	width, height := s.Size()
 
 	for {
-		// clear the screen so we can update it
+		// clear everything from last iteration so we can redraw
 		s.Clear()
 
-		//Determine if the game is over
+		// get width and height so we can use them throughout the loop
+		width, height := s.Size()
+
+		// check if game is over
 		if g.GameOver() {
 			drawSprite(s, (width/2)-4, 7, (width/2)+5, 7, defStyle, "Game Over")
 			drawSprite(s, (width/2)-8, 11, (width/2)+10, 11, defStyle, g.DeclareWinner()+" Wins!")
 			s.Show()
 		}
 
-		// calculate collision
-		if g.Ball.Body.collides(g.Player1.Paddle.Body) || g.Ball.Body.collides(g.Player2.Paddle.Body) {
-			g.Ball.Body.reverseX()
-			g.Ball.Body.reverseY()
+		//check collision
+		if g.Ball.intersects(g.Player1.Paddle) || g.Ball.intersects(g.Player2.Paddle) {
+			g.Ball.reverseX()
+			g.Ball.reverseY()
 		}
 
-		// update the ball
-		g.Ball.CheckEdges(width, height)
-		g.Ball.Update()
-		drawSprite(s,
-			g.Ball.Body.X,
-			g.Ball.Body.Y,
-			g.Ball.Body.X,
-			g.Ball.Body.Y,
-			defStyle,
-			g.Ball.Display())
-
-		// update the players
-		drawSprite(s,
-			g.Player1.Paddle.Body.X,
-			g.Player1.Paddle.Body.Y,
-			g.Player1.Paddle.Body.X+g.Player1.Paddle.Body.width,
-			g.Player1.Paddle.Body.Y+g.Player1.Paddle.Body.height,
-			defStyle,
-			g.Player1.Paddle.Display())
-
-		drawSprite(s,
-			g.Player2.Paddle.Body.X,
-			g.Player2.Paddle.Body.Y,
-			g.Player2.Paddle.Body.X+g.Player2.Paddle.Body.width,
-			g.Player2.Paddle.Body.Y+g.Player2.Paddle.Body.height,
-			defStyle,
-			g.Player2.Paddle.Display())
-
-		// update and display the score
-		if g.Ball.Body.X <= 0 {
+		// update the score
+		if g.Ball.X <= 0 {
 			g.Player2.Score++
 			g.Ball.Reset(width/2, height/2, -1, 1)
 		}
 
-		if g.Ball.Body.X >= width {
+		if g.Ball.X >= width {
 			g.Player1.Score++
 			g.Ball.Reset(width/2, height/2, 1, 1)
 		}
 
+		// display score
 		drawSprite(s, (width/2)-5, 1, 1, 1, defStyle, strconv.Itoa(g.Player1.Score))
 		drawSprite(s, (width/2)+5, 1, 1, 1, defStyle, strconv.Itoa(g.Player2.Score))
 
-		// Update the screen
-		time.Sleep(50 * time.Millisecond)
+		// Update the ball
+		g.Ball.CheckEdges(width, height)
+		g.Ball.Update()
+
+		// display the ball
+		drawSprite(s,
+			g.Ball.X,
+			g.Ball.Y,
+			g.Ball.X,
+			g.Ball.Y,
+			defStyle,
+			g.Ball.Display())
+
+		// display the paddles
+		paddleStyle := tcell.StyleDefault.Background(tcell.ColorWhite).Foreground(tcell.ColorWhite)
+		drawSprite(s,
+			g.Player1.Paddle.X,
+			g.Player1.Paddle.Y,
+			g.Player1.Paddle.X+g.Player1.Paddle.width,
+			g.Player1.Paddle.Y+g.Player1.Paddle.height,
+			paddleStyle,
+			g.Player1.Paddle.Display())
+
+		drawSprite(s,
+			g.Player2.Paddle.X,
+			g.Player2.Paddle.Y,
+			g.Player2.Paddle.X+g.Player2.Paddle.width,
+			g.Player2.Paddle.Y+g.Player2.Paddle.height,
+			paddleStyle,
+			g.Player2.Paddle.Display())
+
+		// rest so we have time to see everything, then redraw
+		time.Sleep(40 * time.Millisecond)
 		s.Show()
-
-		//read from input channel
-		select {
-		case msg := <-g.eventChannel:
-			switch msg {
-			case "up":
-				g.Player2.Paddle.MoveUp()
-			case "down":
-				g.Player2.Paddle.MoveDown()
-			case "w":
-				g.Player1.Paddle.MoveUp()
-			case "s":
-				g.Player1.Paddle.MoveDown()
-			}
-		default:
-			continue
-		}
-
 	}
 
 }

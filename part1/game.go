@@ -1,9 +1,8 @@
 package main
 
 import (
-	"time"
-
 	"github.com/gdamore/tcell/v2"
+	"time"
 )
 
 type Game struct {
@@ -19,9 +18,9 @@ func (g *Game) Run() {
 
 		s.Clear()
 
-		width, height := s.Size()
+		// width, height := s.Size()
 
-		g.Ball.CheckEdges(width, height)
+		// g.Ball.CheckEdges(width, height)
 		g.Ball.Update()
 		s.SetContent(g.Ball.X, g.Ball.Y, g.Ball.Display(), nil, defStyle)
 
